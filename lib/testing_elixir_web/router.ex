@@ -17,7 +17,8 @@ defmodule TestingElixirWeb.Router do
   scope "/", TestingElixirWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    # swap to LiveView
+    live "/", PageLive
   end
 
   # Other scopes may use custom stacks.

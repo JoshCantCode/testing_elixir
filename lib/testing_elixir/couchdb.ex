@@ -21,4 +21,15 @@ defmodule TestingElixir.CouchDB do
 
     Tesla.client(middleware)
   end
+
+  def create(db, doc) do
+    case post(client(), "/#{db}/", doc) do
+      # returns the body and the status if the status is within 200 and 299?
+      # otherwise it returns an error?
+      # and if it errors for whatever reason anyway then just return that
+      {:ok, %{body: body, status: status}} when status in 200..299 -> {:ok, body}
+      {:ok, %{body: body}} -> {:error, body}
+      {:error, reason} -> {:error, reason}
+    end
+  end
 end

@@ -32,4 +32,18 @@ defmodule TestingElixir.CouchDB do
       {:error, reason} -> {:error, reason}
     end
   end
+
+  def get_all_docs(db) do
+    # by default _all_docs doesnt return the documents... idk why
+    case get(client(), "/#{db}/_all_docs?include_docs=true") do
+      {:ok, %{body: body, status: status}} when status in 200..299 -> {:ok, body}
+      {:ok, %{body: body}} -> {:error, body}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+end
+
+# structs are like interfaces in TypeScript
+defmodule TestingElixir.Doc do
+  defstruct [:name, :age, :email]
 end

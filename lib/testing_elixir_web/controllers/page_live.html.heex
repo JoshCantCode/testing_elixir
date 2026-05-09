@@ -1,0 +1,14 @@
+<div>
+  <button type="button" phx-click="get">Get</button>
+
+  <button type="button" phx-click="post">Post</button>
+  <button type="button" phx-click="list">List all Docs</button>
+
+  <%= @message %>
+
+  <ul>
+    <%= for doc <- @docs do %>
+      <li><%= doc.name %> - <%= doc.age %></li>
+    <% end %>
+  </ul>
+</div>

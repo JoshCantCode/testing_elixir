@@ -1,49 +1,37 @@
 defmodule TestingElixir.CouchDB do
   use Tesla
 
-  def get_data do
-    case Tesla.get(client(), "/_all_dbs") do
-      {:ok, %{body: body}} -> {:ok, inspect(body)}
-      {:error, reason} -> {:error, reason}
-    end
+  # http://user:pw@domain:port/
+
+  # current design flaw is that it builds the client each time
+  # i need to research GenServer's
+  defp client do
+    Sofa.init("http://admin:admin@localhost:5984/")
+    |> Sofa.client()
+    |> Sofa.connect!()
   end
 
-  defp client do
-    # configuration for the client
-    # JSON makes everything return as json
-    # basic auth sets the credentaials
-    # url is self explanatory
-    middleware = [
-      {Tesla.Middleware.BaseUrl, "http://localhost:5984"},
-      Tesla.Middleware.JSON,
-      {Tesla.Middleware.BasicAuth, %{username: "admin", password: "admin"}}
-    ]
-
-    Tesla.client(middleware)
+  # all dbs
+  # similar to rust, implicit returns
+  def get_data do
+    Sofa.all_dbs(client())
   end
 
   def create(db, doc) do
-    case post(client(), "/#{db}/", doc) do
-      # returns the body and the status if the status is within 200 and 299?
-      # otherwise it returns an error?
-      # and if it errors for whatever reason anyway then just return that
-      {:ok, %{body: body, status: status}} when status in 200..299 -> {:ok, body}
-      {:ok, %{body: body}} -> {:error, body}
+    sofa_db = Sofa.DB.open!(client(), db)
+
+    case Sofa.Doc.put(sofa_db, doc) do
+      {:ok, %Sofa.Doc{id: id}} -> {:ok, id}
       {:error, reason} -> {:error, reason}
     end
   end
 
+  # claude helped me with this
   def get_all_docs(db) do
-    # by default _all_docs doesnt return the documents... idk why
-    case get(client(), "/#{db}/_all_docs?include_docs=true") do
-      {:ok, %{body: body, status: status}} when status in 200..299 -> {:ok, body}
-      {:ok, %{body: body}} -> {:error, body}
+    case Sofa.raw(client(), "/#{db}/_all_docs?include_docs=true") do
+      {:ok, _sofa, %Sofa.Response{body: body, status: 200}} -> {:ok, body}
+      {:ok, _sofa, %Sofa.Response{body: body}} -> {:error, body}
       {:error, reason} -> {:error, reason}
     end
   end
-end
-
-# structs are like interfaces in TypeScript
-defmodule TestingElixir.Doc do
-  defstruct [:name, :age, :email]
 end

@@ -8,7 +8,7 @@
 
   <ul>
     <%= for doc <- @docs do %>
-      <li><%= doc.name %> - <%= doc.age %></li>
+      <li><%= doc["name"] %> - <%= doc["age"] %></li>
     <% end %>
   </ul>
 </div>

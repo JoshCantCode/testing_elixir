@@ -39,6 +39,7 @@ defmodule TestingElixir.MixProject do
       {:hackney, "~> 1.18"},
       {:mint, "~> 1.8"},
       {:tesla, "~> 1.8"},
+      {:sofa, "~> 0.1.3"},
       {:floki, ">= 0.30.0", only: :test},
       {:phoenix_live_dashboard, "~> 0.8.0"},
       {:esbuild, "~> 0.7", runtime: Mix.env() == :dev},
